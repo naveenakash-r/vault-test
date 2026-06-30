@@ -7,7 +7,7 @@ env:
     IMAGE_TAG: "edf_edh_common_producer_consumer_image_p"
     DEPS_BUCKET: "docker-2026"
     DEPS_JAR: "datahub-kafka-libs-all.jar"
-    DEPS_JSON: "service_account.json"
+    DEPS_JSON: "credentials.json"
 
 phases:
   pre_build:
