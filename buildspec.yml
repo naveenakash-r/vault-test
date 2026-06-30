@@ -4,7 +4,7 @@ env:
   variables:
     AWS_REGION: "eu-central-1"
     ECR_REPOSITORY: "emea_data_fair_test_repository"
-    IMAGE_TAG: "edf_edh_common_producer_consumer_image_p"
+    IMAGE_TAG: "edf_edh_test_common_producer_consumer_image_p"
     DEPS_BUCKET: "docker-2026"
     DEPS_JAR: "datahub-kafka-libs-all.jar"
     DEPS_JSON: "credentials.json"
