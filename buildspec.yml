@@ -1,0 +1,39 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_REGION: "eu-central-1"
+    ECR_REPOSITORY: "emea_data_fair_test_repository"
+    IMAGE_TAG: "edf_edh_common_producer_consumer_image_p"
+    DEPS_BUCKET: "docker-2026"
+    DEPS_JAR: "datahub-kafka-libs-all.jar"
+    DEPS_JSON: "service_account.json"
+
+phases:
+  pre_build:
+    commands:
+      - echo "Build started $(date)"
+      - echo "Rotation ID = ${ROTATION_ID:-manual}"
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - ECR_URI=$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY
+      - echo "Logging in to ECR..."
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+      - echo "Downloading JAR dependency..."
+      - aws s3 cp s3://$DEPS_BUCKET/$DEPS_JAR ./
+
+      - echo "Downloading rotating credentials..."
+      - aws s3 cp s3://$DEPS_BUCKET/$DEPS_JSON ./
+
+  build:
+    commands:
+      - echo "Building image..."
+      - docker build -t $ECR_URI:$IMAGE_TAG .
+
+  post_build:
+    commands:
+      - echo "Pushing image..."
+      - docker push $ECR_URI:$IMAGE_TAG
+      - echo "Cleaning up secrets from build host..."
+      - rm -f credentials.json *.jks
+      - echo "Done $(date)"
